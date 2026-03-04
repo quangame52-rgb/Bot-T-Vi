@@ -1,7 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 export interface ScriptData {
   zodiac: string;
   topic: string;
@@ -16,6 +14,13 @@ export interface SlideContent {
 }
 
 export async function generateScript(data: ScriptData): Promise<SlideContent[]> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not set");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
   const prompt = `
 # ROLE & GOAL
 Bạn là một Thầy Phong Thủy & Tử Vi cao tay. Nhiệm vụ của bạn là tạo kịch bản "Ảnh cuộn" (Photo Swipe) TikTok mang đậm màu sắc Á Đông, Huyền bí, Sáng rõ.
