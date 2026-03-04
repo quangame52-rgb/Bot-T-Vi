@@ -1,5 +1,3 @@
-import { GoogleGenAI } from "@google/genai";
-
 export interface ScriptData {
   zodiac: string;
   topic: string;
@@ -14,13 +12,6 @@ export interface SlideContent {
 }
 
 export async function generateScript(data: ScriptData): Promise<SlideContent[]> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not set");
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
-
   const prompt = `
 # ROLE & GOAL
 Bạn là một Thầy Phong Thủy & Tử Vi cao tay. Nhiệm vụ của bạn là tạo kịch bản "Ảnh cuộn" (Photo Swipe) TikTok mang đậm màu sắc Á Đông, Huyền bí, Sáng rõ.
@@ -62,18 +53,21 @@ Trả về kết quả dưới dạng JSON array, mỗi phần tử là một ob
 `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ prompt }),
     });
 
-    const text = response.text;
-    if (!text) throw new Error("No response from AI");
-    
-    return JSON.parse(text) as SlideContent[];
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to generate script");
+    }
+
+    const result = await response.json();
+    return result as SlideContent[];
   } catch (error) {
     console.error("Error generating script:", error);
     throw error;
