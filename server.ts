@@ -13,7 +13,7 @@ async function startServer() {
   // API Routes
   app.post("/api/generate", async (req, res) => {
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
+      const apiKey = process.env.GEMINI_API_KEY || "AIzaSyCpp9eA89Mu2thSUfSq-j3QId1wYO4IpgI";
       if (!apiKey) {
         throw new Error("GEMINI_API_KEY is not set in the server environment");
       }
